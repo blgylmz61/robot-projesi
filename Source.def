@@ -1,0 +1,9 @@
+LIBRARY MyAlgo.dll
+EXPORTS
+    Algo1 = _Algo1@24
+    Algo2 =	_Algo2@24
+    Algo3 = _Algo3@24
+    Algo4 = _Algo4@24
+    Algo5 = _Algo5@24
+    Algo6 = _Algo6@24
+    Algo7 = _Algo7@24
