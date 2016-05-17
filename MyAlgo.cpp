@@ -1,183 +1,258 @@
-#include "MyAlgo.h"
+﻿#include "MyAlgo.h"
 
-// a sample exported function
+float PID(int S, float Kp, float Ki, float Kd) {
+
+	float hata, eskihata, i, P, D, pid;
+
+	eskihata = 0;
+	i = 0;
+	hata = S - 992;
+
+	P = Kp * hata;
+	i = Ki*(i + hata);
+	D = Kd * (hata - eskihata);
+
+	pid = P + i + D;
+
+	eskihata = hata;
+	return pid;
+}
+
+int arama(int S) {
+	int deger[19] = { 1,3,7,15,31,62,124,248,496,992,1984,3968,7936,15872,31744,30720,28672,24576,16384 };
+	for (int j = 0; j <= 19; j++) {
+		if (deger[j] == S)
+		{
+			return j + 1;
+		}
+	}
+	return -1;
+}
+
 bool __stdcall Algo1(int S, int L, int R, int Init, int& VL, int& VR)
 {
+	int eskisensordegeri = 992;
+	int sensordegeri = arama(S);
+	int a = eskisensordegeri - sensordegeri;
+	float Kp, Ki, Kd;
+	Kp = 0.000000012*a;
+	Ki = 0.0000000001*a;
+	Kd = 0.00001*a;
+	int df = 35;
+	float pid = PID(S, Kp, Ki, Kd);
+	if (a <= -1) {
 
-	//  VL = 60 ;
-	//   VR = 60 ;
+		VL = df + pid*a * 10;
+		VR = df - pid*a * 10;
+	}
+	else if (a >= -1) {
+		VL = df - pid * 10;
+		VR = df + pid* 10;
+	}
+	else if (sensordegeri == -1) {
+		VL = df - pid * 10;
+		VL = df - pid * 10;
+	}
+	else {
+		VL = df + pid * 10;
+		VL = df + pid * 10;
 
-	double al = (double)L / 255.0;
-	double ar = (double)R / 255.0;
-
-	VL = 300 * ar;
-	VR = 300 * al;
+	}
+	
 
 
+
+
+	eskisensordegeri = sensordegeri;
 
 	return true;
 }
 
 bool __stdcall  Algo2(int S, int L, int R, int Init, int& VL, int& VR)
 {
-	
-		VL = 60;
-	
+	int eskisensordegeri = 10, Lesd = 10, Resd = 10;
+	int sensordegeri = arama(S);
+	int Lsensor = arama(L);
+	int Rsensor = arama(R);
+	int La = Lesd - Lsensor;
+	int Ra = Resd - Rsensor;
+	int a = eskisensordegeri - sensordegeri;
+	float Kp, Ki, Kd;
+	Kp = 0.0000001;
+	Ki = 0.00000001 ;
+	Kd = 0.000001;
+	int hiz = 30;
 
-		VR = 60;
 
+	float pid = PID(S, Kp, Ki, Kd);
+	if (a <= -1) {
+
+
+		if (La <= -1) {
+			VL = hiz + pid*La;
+			VR = hiz - pid*La;
+		}
+		else if (La >= 1) {
+
+			VL = hiz + pid + 10;
+			VR = hiz - pid + 10;
+
+		}
+		else if (Lsensor == -1) {
+
+			VL = hiz + pid;
+			VR = hiz + pid;
+		}
+
+
+		if (Ra <= -1)
+		{
+			VL = hiz - pid*Ra;
+			VR = hiz + pid*Ra;
+		}
+		else if (Ra >= 1) {
+
+			VL = hiz - pid + 10;
+			VR = hiz + pid + 10;
+
+		}
+		else if (Rsensor == -1)
+		{
+			VL = hiz + pid;
+			VR = hiz + pid;
+		}
+
+
+	}
+	else if (a >= -1) {
+
+		if (Ra <= -1)
+		{
+			VL = hiz - pid;
+			VR = hiz + pid;
+
+		}
+		else if (Ra >= 1) {
+			VL = hiz - pid + 10;
+			VR = hiz + pid + 10;
+
+		}
+		else if (Rsensor == 0) {
+			VL = hiz + pid;
+			VR = hiz + pid;
+		}
+
+
+
+		if (La <= -1)
+		{
+			VL = hiz + pid;
+			VR = hiz - pid;
+
+		}
+		else if (Ra >= 1) {
+			VL = hiz + pid + 10;
+			VR = hiz - pid + 10;
+
+		}
+		else if (Rsensor == 0) {
+			VL = hiz + pid;
+			VR = hiz + pid;
+		}
+
+
+
+
+
+	}
+	else if (sensordegeri == -1) {
+
+		VL = hiz - pid;
+		VL = hiz - pid;
+	}
+	else {
+		VL = 127;
+		VL = 127;
+
+	}
+
+
+
+
+
+
+	eskisensordegeri = sensordegeri;
+	Lesd = Lsensor;
+	Resd = Rsensor;
 	return true;
+
+
+	
 }
 
 bool __stdcall Algo3(int S, int L, int R, int Init, int& VL, int& VR)
 {
-	VL = 20;
-	VR = -20;
+	VL = 60;
+	VR = 60;
 
 	return true;
 }
 
 bool __stdcall Algo4(int S, int L, int R, int Init, int& VL, int& VR)
 {
-	double deltaL, deltaR;
+	VL = 60;
+	VR = 60;
 
-	deltaL = R - L;
-
-	deltaR = L - R;
-
-	deltaL = deltaL / 255;
-	deltaR = deltaR / 255;
-
-	VL = 40 - deltaL * 10;
-	VR = 40 - deltaR * 10;
-	
 
 	return true;
 }
-
-int oldS = 0;
-int counter = 0;
-bool turnLeft = false;
-bool turnRight = false;
 
 bool __stdcall  Algo5(int S, int L, int R, int Init, int& VL, int& VR)
 {
-	double deltaL, deltaR;
-
-	if (S == 0)
-	{
-		oldS = 1;
-		VL = 10;
-		VR = -10;
-		counter = 1;
-		turnLeft = true;
-		return true;
-	}
-
-	if (oldS == 1 && S == 0 && turnLeft)
-	{
-		VL = 10;
-		VR = -10;
-		counter++;
-		if (counter > 3)
-		{
-			counter = 1;
-			VL = -10;
-			VR = 10;
-			turnRight = true;
-			turnLeft = false;
-		}
-		return true;
-	}
-
-	if (oldS == 1 && S == 0 && turnRight)
-	{
-		VL = -10;
-		VR = 10;
-		counter++;
-		if (counter > 3)
-		{
-			counter = 1;
-			VL = 5;
-			VR = 5;
-			turnRight = false;
-			turnLeft = true;
-		}
-		return true;
-	}
-
-	deltaL = R - L;
-
-	deltaR = L - R;
-
-	deltaL = deltaL / 255;
-	deltaR = deltaR / 255;
-
-	VL = 10 - deltaL * 10;
-	VR = 10 - deltaR * 10;
-
+	VL = 60;
+	VR = 60;
 
 	return true;
 }
 
-bool __stdcall  Algo6(int S, int L, int R, int Init, int& VL, int& VR)
-{
-	double deltaL, deltaR;
+bool __stdcall  Algo6(int S, int L, int R, int Init, int& VL, int& VR) {
 
-	if (S == 0)
-	{
-		oldS = 1;
-		VL = 5;
-		VR = -5;
-		counter = 1;
-		turnLeft = true;
-		return true;
+	int eskisensordegeri = 992;
+	int sensordegeri = arama(S);
+	int a = eskisensordegeri - sensordegeri;
+	float Kp, Ki, Kd;
+	Kp = 0.000000012*a;
+	Ki = 0.0000000001*a;
+	Kd = 0.00001*a;
+	int df = 35;
+	float pid = PID(S, Kp, Ki, Kd);
+	if (a <= -1) {
+
+		VL = df + pid*a * 10;
+		VR = df - pid*a * 10;
+	}
+	else if (a >= -1) {
+		VL = df - pid * 10;
+		VR = df + pid * 10;
+	}
+	else if (sensordegeri == -1) {
+		VL = df - pid * 10;
+		VL = df - pid * 10;
+	}
+	else {
+		VL = df + pid * 10;
+		VL = df + pid * 10;
+
 	}
 
-	if (oldS == 1 && S == 0 && turnLeft)
-	{
-		VL = -5;
-		VR = 5;
-		counter++;
-		if (counter > 3)
-		{
-			counter = 1;
-			VL = -5;
-			VR = 5;
-			turnRight = true;
-			turnLeft = false;
-		}
-		return true;
-	}
 
-	if (oldS == 1 && S == 0 && turnRight)
-	{
-		VL = 5;
-		VR = -5;
-		counter++;
-		if (counter > 3)
-		{
-			counter = 1;
-			VL = 5;
-			VR = 5;
-			turnRight = false;
-			turnLeft = true;
-		}
-		return true;
-	}
 
-	deltaL = R - L;
 
-	deltaR = L - R;
 
-	deltaL = deltaL / 255;
-	deltaR = deltaR / 255;
-
-	VL = 10 - deltaL * 10;
-	VR = 10 - deltaR * 10;
-
+	eskisensordegeri = sensordegeri;
 
 	return true;
+
 }
 
 bool __stdcall  Algo7(int S, int L, int R, int Init, int& VL, int& VR)
@@ -188,4 +263,3 @@ bool __stdcall  Algo7(int S, int L, int R, int Init, int& VL, int& VR)
 
 	return true;
 }
-
